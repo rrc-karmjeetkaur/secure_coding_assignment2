@@ -1,0 +1,32 @@
+name: "Bandit scan"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Bandit (scan repo)
+        run: |
+          bandit -r . -f json -o bandit-output.json || true
+
+      - name: Upload Bandit report (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-output.json
